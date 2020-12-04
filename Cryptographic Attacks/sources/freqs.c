@@ -42,7 +42,7 @@ char *output_filename = NULL;
 
 void read_cmd_args(int argc, char **argv){
 
-    if (argc < 5) {
+    if (argc < 5){
         printf("How to run the program: ./freqs THREADS_COUNT INPUT_INDEX_FILE INPUT_TEXT_FILE CHAR_ORDER_FILE OUTPUT_FILENAME\n");
         exit(1);
     }

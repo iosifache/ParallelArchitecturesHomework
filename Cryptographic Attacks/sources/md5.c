@@ -27,9 +27,9 @@ char *dictionary_filename = NULL;
 char *hash_filename = NULL;
 char *output_filename = NULL;
 
-void read_cmd_args(int argc, char **argv) {
+void read_cmd_args(int argc, char **argv){
 
-    if (argc < 5) {
+    if (argc < 5){
         printf("How to run the program: ./md5 THREADS_COUNT DICT_FILE_NAME MD5_HASH_FILENAME OUTPUT_FILENAME\n");
         exit(1);
     }

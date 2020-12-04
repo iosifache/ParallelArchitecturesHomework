@@ -35,7 +35,7 @@ inline int sequence_function(char *string){
 
 void read_cmd_args(int argc, char **argv){
 
-    if (argc < 5) {
+    if (argc < 5){
         printf("How to run the program: ./search THREADS_COUNT INPUT_VALS_FILE INPUT_TEXT_FILE OUTPUT_FILENAME\n");
         exit(1);
     }
@@ -87,10 +87,10 @@ int main(int argc, char **argv){
     pthread_t *tid = NULL;
     pthread_mutex_t found_mutex;
     thread_parameters *parameters = NULL;
-    char out_buffer[21] = {'\0'};
+    char out_buffer[21] ={'\0'};
     char *input_text = NULL;
     int *array = NULL;
-    int indexes[2] = {0};
+    int indexes[2] ={0};
     int found_count = 0, is_error = 0, input_text_length, array_size, temp_index, i, ret_val;
 
     pthread_mutex_init(&found_mutex, NULL);
