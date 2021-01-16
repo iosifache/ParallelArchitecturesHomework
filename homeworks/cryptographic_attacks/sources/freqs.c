@@ -3,12 +3,13 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <math.h>
-#include "../headers/helpers/utlist.h"
-#include "../headers/helpers/file_operations.h"
-#include "../headers/helpers/string_operations.h"
-#include "../headers/helpers/char_operations.h"
-#include "../headers/helpers/math_operations.h"
-#include "../headers/helpers/conditon_checkers.h"
+#include "../../helpers/CCookbook/extern_modules/uthash/src/utlist.h"
+#include "../../helpers/CCookbook/io/file_operations.h"
+#include "../../helpers/CCookbook/strings/characters.h"
+#include "../../helpers/CCookbook/strings/strings.h"
+#include "../../helpers/CCookbook/miscellaneous/math_operations.h"
+#include "../../helpers/CCookbook/miscellaneous/conditon_checkers.h"
+#include "../../helpers/CCookbook/miscellaneous/data_types.h"
 
 typedef enum operation_type{
     COMPUTE_FREQUENCIES,
@@ -34,7 +35,7 @@ typedef struct thread_parameters{
     int *performing_write_operation;
 } thread_parameters;
 
-int threads_count;
+int threads_number;
 char *input_index_filename = NULL;
 char *input_text_filename = NULL;
 char *char_order_filename = NULL;
@@ -43,11 +44,11 @@ char *output_filename = NULL;
 void read_cmd_args(int argc, char **argv){
 
     if (argc < 5){
-        printf("How to run the program: ./freqs THREADS_COUNT INPUT_INDEX_FILE INPUT_TEXT_FILE CHAR_ORDER_FILE OUTPUT_FILENAME\n");
+        printf("How to run the program: ./freqs threads_number INPUT_INDEX_FILE INPUT_TEXT_FILE CHAR_ORDER_FILE OUTPUT_FILENAME\n");
         exit(1);
     }
 
-    threads_count = atoi(argv[1]);
+    threads_number = atoi(argv[1]);
     input_index_filename = argv[2];
     input_text_filename = argv[3];
     char_order_filename = argv[4];
@@ -74,8 +75,8 @@ void *thread_function(void *var){
     parameters = (thread_parameters *)var;
 
     // Compute indexes for buffer
-    start_index = parameters->thread_id * ceil(parameters->buffer_size / threads_count);
-    stop_index = min(parameters->buffer_size, (parameters->thread_id + 1) * ceil(parameters->buffer_size / threads_count));
+    start_index = parameters->thread_id * ceil(parameters->buffer_size / threads_number);
+    stop_index = min(parameters->buffer_size, (parameters->thread_id + 1) * ceil(parameters->buffer_size / threads_number));
 
     // Iterate through buffer
     for (i = start_index; i < stop_index; i++){
@@ -160,7 +161,8 @@ int main(int argc, char **argv){
     word_pointer *word_list = NULL, *current_word, *temp;
     char *input_text = NULL, *char_order = NULL, *decryption_key = NULL;
     int *indexes_array = NULL, *final_frequency_array;
-    int elements_count = 0, performing_write_operation = 0, is_error = 0, indexes_array_size, input_text_length, char_order_size, max_index, max_value, i, j, allocated_limit, ret_val;
+    uint input_text_length, char_order_size;
+    int elements_count = 0, performing_write_operation = 0, is_error = 0, indexes_array_size, max_index, max_value, i, j, allocated_limit, ret_val;
 
     // Read arguments and the content of given files
     read_cmd_args(argc, argv);
@@ -179,11 +181,11 @@ int main(int argc, char **argv){
     }
 
     // Allocate memory for threads and initialize their parameters
-    tid = (pthread_t *)malloc(threads_count * sizeof(pthread_t));
+    tid = (pthread_t *)malloc(threads_number * sizeof(pthread_t));
     GOTO_CONDITION_CHECKER(tid == NULL, is_error, EXIT_MAIN_4);
-    parameters = (thread_parameters *)malloc(threads_count * sizeof(thread_parameters));
+    parameters = (thread_parameters *)malloc(threads_number * sizeof(thread_parameters));
     GOTO_CONDITION_CHECKER(parameters == NULL, is_error, EXIT_MAIN_5);
-    for (i = 0; i < threads_count; i++){
+    for (i = 0; i < threads_number; i++){
         parameters[i].thread_id = i;
         parameters[i].buffer = input_text + indexes_array[0];
         parameters[i].buffer_size = indexes_array[1] - indexes_array[0];
@@ -197,14 +199,14 @@ int main(int argc, char **argv){
     }
 
     // Run threads for computing the frequency
-    for (i = 0; i < threads_count; i++)
+    for (i = 0; i < threads_number; i++)
         pthread_create(&(tid[i]), NULL, thread_function, &(parameters[i]));
-    for (i = 0; i < threads_count; i++)
+    for (i = 0; i < threads_number; i++)
         pthread_join(tid[i], NULL);
 
     // Store the sum of the frequences in the vector of the first thread
     final_frequency_array = parameters[0].frequencies;
-    for (i = 0; i < threads_count; i++)
+    for (i = 0; i < threads_number; i++)
         for (j = 0; j < char_order_size; j++){
             final_frequency_array[j] += (parameters[i].frequencies)[j];
         }
@@ -232,7 +234,7 @@ int main(int argc, char **argv){
     }
 
     // Initialize threads parameters
-    for (i = 0; i < threads_count; i++){
+    for (i = 0; i < threads_number; i++){
         parameters[i].operation = DECRYPT_WORDS;
         parameters[i].decryption_key = decryption_key;
         parameters[i].word_list = &word_list;
@@ -240,9 +242,9 @@ int main(int argc, char **argv){
     }
 
     // Run threads for decryption
-    for (i = 0; i < threads_count; i++)
+    for (i = 0; i < threads_number; i++)
         pthread_create(&(tid[i]), NULL, thread_function, &(parameters[i]));
-    for (i = 0; i < threads_count; i++)
+    for (i = 0; i < threads_number; i++)
         pthread_join(tid[i], NULL);
 
     // Dump all wanted content (count and sorted words) into file
@@ -265,7 +267,7 @@ int main(int argc, char **argv){
     EXIT_MAIN_8:
         free(decryption_key);
     EXIT_MAIN_7:
-        allocated_limit = (is_error && i < threads_count) ? i : threads_count;
+        allocated_limit = (is_error && i < threads_number) ? i : threads_number;
         for (i = 0; i < allocated_limit; i++)
             free(parameters[i].frequencies);
     EXIT_MAIN_6:

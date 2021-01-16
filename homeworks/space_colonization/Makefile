@@ -4,6 +4,10 @@ SOURCES := sources
 EXECUTABLES := executables
 DATA := data
 
+# CCookbook, without cryptography
+CCOOKBOOK_FOLDER := ../../helpers/CCookbook/
+CCOOKBOOK_SOURCES := $(shell find ../../helpers/CCookbook/ -maxdepth 2 -name "*.c" -type f -not -name "hash.c")
+
 # Compiler
 CC := gcc
 FLAGS := -std=c99 -O3 -Wall -g
@@ -13,11 +17,8 @@ all: clean build
 
 build: homework generator compare
 
-homeworkMPI: homework
-	cp $(EXECUTABLES)/homework homework
-
 homework: $(SOURCES)/homework.c
-	mpicc $(FLAGS) -I $(HEADERS) $(SOURCES)/homework.c $(LD_FLAGS) -o $(EXECUTABLES)/homework
+	mpicc $(FLAGS) -I $(HEADERS) -I $(CCOOKBOOK_FOLDER) $(CCOOKBOOK_SOURCES) $(SOURCES)/homework.c $(LD_FLAGS) -o $(EXECUTABLES)/homework
 
 test: clean_output compare homework
 	./run_tests.sh

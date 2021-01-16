@@ -2,9 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../headers/helpers/math_operations.h"
-#include "../headers/helpers/logger.h"
-#include "../headers/helpers/conditon_checkers.h"
+#include "../../helpers/CCookbook/miscellaneous/math_operations.h"
+#include "../../helpers/CCookbook/miscellaneous/conditon_checkers.h"
+#include "../../helpers/CCookbook/miscellaneous/logger.h"
 
 typedef struct zone{
     double food;

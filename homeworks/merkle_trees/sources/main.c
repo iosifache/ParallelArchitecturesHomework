@@ -9,7 +9,7 @@
 #include <string.h>
 #include <math.h>
 #include <errno.h>
-#include "workerThread.h"
+#include "../headers/worker_thread.h"
 
 char **strings;
 char **ids;

@@ -8,11 +8,11 @@
 #include <stdbool.h>
 #include <limits.h>
 #include <openssl/md5.h>
-#include "../headers/replicated_workers.h"
-#include "../headers/helpers/logger.h"
-#include "../headers/helpers/char_operations.h"
-#include "../headers/helpers/conditon_checkers.h"
-#include "../headers/helpers/data_types.h"
+#include "../../helpers/CCookbook/multitasking/replicated_workers.h"
+#include "../../helpers/CCookbook/strings/characters.h"
+#include "../../helpers/CCookbook/miscellaneous/data_types.h"
+#include "../../helpers/CCookbook/miscellaneous/conditon_checkers.h"
+#include "../../helpers/CCookbook/miscellaneous/logger.h"
 
 #define INITIAL_LEVELS 20
 #define MD5_BYTES_COUNT 16

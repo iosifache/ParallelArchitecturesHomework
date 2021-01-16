@@ -3,21 +3,23 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <math.h>
-#include "../headers/helpers/file_operations.h"
-#include "../headers/helpers/math_operations.h"
-#include "../headers/helpers/conditon_checkers.h"
+#include "../../helpers/CCookbook/io/file_operations.h"
+#include "../../helpers/CCookbook/miscellaneous/math_operations.h"
+#include "../../helpers/CCookbook/miscellaneous/conditon_checkers.h"
+#include "../../helpers/CCookbook/miscellaneous/data_types.h"
+
 
 typedef struct{
     int thread_id;
     char *buffer;
-    int buffer_size;
+    uint buffer_size;
     int *f_values;
     int *found_indexes;
     int *found_count;
     pthread_mutex_t *found_mutex;
 } thread_parameters;
 
-int threads_count;
+int threads_number;
 char *input_val_filename = NULL;
 char *input_text_filename = NULL;
 char *output_filename = NULL;
@@ -36,11 +38,11 @@ inline int sequence_function(char *string){
 void read_cmd_args(int argc, char **argv){
 
     if (argc < 5){
-        printf("How to run the program: ./search THREADS_COUNT INPUT_VALS_FILE INPUT_TEXT_FILE OUTPUT_FILENAME\n");
+        printf("How to run the program: ./search threads_number INPUT_VALS_FILE INPUT_TEXT_FILE OUTPUT_FILENAME\n");
         exit(1);
     }
 
-    threads_count = atoi(argv[1]);
+    threads_number = atoi(argv[1]);
     input_val_filename = argv[2];
     input_text_filename = argv[3];
     output_filename = argv[4];
@@ -57,8 +59,8 @@ void *thread_function(void *var){
     second_value = parameters->f_values[1];
 
     // Compute indexes for buffer
-    start_index = parameters->thread_id * ceil(parameters->buffer_size / threads_count);
-    stop_index = min(parameters->buffer_size, (parameters->thread_id + 1) * ceil(parameters->buffer_size / threads_count));
+    start_index = parameters->thread_id * ceil(parameters->buffer_size / threads_number);
+    stop_index = min(parameters->buffer_size, (parameters->thread_id + 1) * ceil(parameters->buffer_size / threads_number));
 
     // Iterate through buffer
     for (i = start_index; i < stop_index; i++){
@@ -89,9 +91,10 @@ int main(int argc, char **argv){
     thread_parameters *parameters = NULL;
     char out_buffer[21] ={'\0'};
     char *input_text = NULL;
+    uint input_text_length;
     int *array = NULL;
     int indexes[2] ={0};
-    int found_count = 0, is_error = 0, input_text_length, array_size, temp_index, i, ret_val;
+    int found_count = 0, is_error = 0, array_size, temp_index, i, ret_val;
 
     pthread_mutex_init(&found_mutex, NULL);
 
@@ -104,11 +107,11 @@ int main(int argc, char **argv){
     GOTO_CONDITION_CHECKER(ret_val != 0, is_error, EXIT_MAIN_2);
 
     // Allocate memory for threads and initialize their parameters
-    tid = (pthread_t *)malloc(threads_count * sizeof(pthread_t));
+    tid = (pthread_t *)malloc(threads_number * sizeof(pthread_t));
     GOTO_CONDITION_CHECKER(tid == NULL, is_error, EXIT_MAIN_3);
-    parameters = (thread_parameters *)malloc(threads_count * sizeof(thread_parameters));
+    parameters = (thread_parameters *)malloc(threads_number * sizeof(thread_parameters));
     GOTO_CONDITION_CHECKER(parameters == NULL, is_error, EXIT_MAIN_4);
-    for (i = 0; i < threads_count; i++){
+    for (i = 0; i < threads_number; i++){
         parameters[i].thread_id = i;
         parameters[i].buffer = input_text;
         parameters[i].buffer_size = input_text_length;
@@ -119,9 +122,9 @@ int main(int argc, char **argv){
     }
 
     // Run threads for searching the delimitator
-    for (i = 0; i < threads_count; i++)
+    for (i = 0; i < threads_number; i++)
         pthread_create(&(tid[i]), NULL, thread_function, &(parameters[i]));
-    for (i = 0; i < threads_count; i++)
+    for (i = 0; i < threads_number; i++)
         pthread_join(tid[i], NULL);
 
     // Write indexes to file
