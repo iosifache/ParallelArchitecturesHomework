@@ -1,4 +1,4 @@
-# ParallelArchitecturesHomeworks :construction_worker:
+# ParallelArchitecturesHomework :construction_worker:
 
 This repository contains `C`-solved homework for the "Parallel Architectures" course.
 
