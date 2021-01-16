@@ -10,7 +10,7 @@ LD_FLAGS := -lm -lpthread -lcrypto
 
 all: clean build
 
-build: clean homework generator
+build: homework generator
 
 homework: $(SOURCES)/main.c $(SOURCES)/workerThread.c $(HEADERS)/workerThread.h
 	gcc $(FLAGS) -I $(HEADERS) $(SOURCES)/workerThread.c $(SOURCES)/main.c $(SOURCES)/replicated_workers.c $(LD_FLAGS) -o $(EXECUTABLES)/homework

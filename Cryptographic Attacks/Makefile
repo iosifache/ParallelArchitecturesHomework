@@ -3,7 +3,9 @@ HELPER_HEADERS := $(HEADERS)/helpers
 SOURCES := sources
 HELPER_SOURCES := $(SOURCES)/helpers/*
 EXECUTABLES := executables
-OUTPUT := output
+DATA := data
+CORRECT_DATA := $(DATA)/correct
+PROD_DATA := $(DATA)/prod
 
 all: clean build
 
@@ -13,33 +15,27 @@ test: test_search test_freqs test_md5
 
 build_search: $(SOURCES)/search.c
 	gcc -O3 -Wall -I $(HELPER_HEADERS) $(SOURCES)/search.c $(HELPER_SOURCES) -o $(EXECUTABLES)/search -g -lm -lpthread -lcrypto -std=gnu99
-	cp $(EXECUTABLES)/search search
 
 test_search:
-	$(EXECUTABLES)/search 2 data/vals.txt data/input.txt output/indexes.txt
-	diff output/indexes.txt data/indexes.txt
+	$(EXECUTABLES)/search 2 $(CORRECT_DATA)/vals.txt $(CORRECT_DATA)/input.txt $(PROD_DATA)/indexes.txt
+	diff $(PROD_DATA)/indexes.txt $(CORRECT_DATA)/indexes.txt
 
 build_freqs: $(SOURCES)/freqs.c
 	gcc -O3 -Wall -I $(HELPER_HEADERS) $(SOURCES)/freqs.c $(HELPER_SOURCES) -o $(EXECUTABLES)/freqs -g -lm -lpthread -lcrypto -std=gnu99
-	cp $(EXECUTABLES)/freqs freqs
 
 test_freqs:
-	$(EXECUTABLES)/freqs 2 output/indexes.txt data/input.txt data/real_order.txt output/dictionary.txt
-	diff output/dictionary.txt data/dictionary.txt
+	$(EXECUTABLES)/freqs 2 $(PROD_DATA)/indexes.txt $(CORRECT_DATA)/input.txt $(CORRECT_DATA)/real_order.txt $(PROD_DATA)/dictionary.txt
+	diff $(PROD_DATA)/dictionary.txt $(CORRECT_DATA)/dictionary.txt
 
 build_md5: $(SOURCES)/md5.c
 	gcc -O3 -Wall -I $(HELPER_HEADERS) $(SOURCES)/md5.c $(HELPER_SOURCES) -o $(EXECUTABLES)/md5 -g -lm -lpthread -lcrypto -std=gnu99
-	cp $(EXECUTABLES)/md5 md5
 
 test_md5:
-	$(EXECUTABLES)/md5 2 output/dictionary.txt data/md5_hash.txt output/plaintext.txt
-	diff output/plaintext.txt data/plaintext.txt
+	$(EXECUTABLES)/md5 2 $(PROD_DATA)/dictionary.txt $(CORRECT_DATA)/md5_hash.txt $(PROD_DATA)/plaintext.txt
+	diff $(PROD_DATA)/plaintext.txt $(CORRECT_DATA)/plaintext.txt
 
 clean:
 	rm -f $(EXECUTABLES)/*
-	rm -f $(OUTPUT)/*
-	rm -f freqs
-	rm -f search
-	rm -f md5
+	rm -f $(PROD_DATA)/*
 	rm -f .gdb*
 	rm -f peda*
